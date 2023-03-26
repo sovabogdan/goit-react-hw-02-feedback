@@ -1,5 +1,7 @@
 import { Component } from 'react';
-
+import {Statistics}  from './Statistics/Statistics';
+import { Options } from './Options/Options'
+import {Container,Title,Notification} from './App.styled'
 
 export class App extends Component {
   state = {
@@ -8,8 +10,7 @@ export class App extends Component {
     bad: 0,
   };
 
-  handleClick = (value) => {
-    console.log(this.state.value);
+  handleFeedback = (value) => {
      this.setState(prevState => {
        return { [value]: prevState[value] + 1 };
     })
@@ -18,32 +19,27 @@ export class App extends Component {
     const { good, neutral, bad } = this.state;
     return good + neutral + bad;
   };
+   positivePercentage = () => {
+    const total = this.totalFeedback();
+    const { good } = this.state;
+    return total !== 0 ? Math.round((good * 100) / total) : 0;
+  };
   render() {
     const buttonsArray = Object.keys(this.state);
     const statsArray = Object.entries(this.state);
     const total = this.totalFeedback();
-    console.log(buttonsArray);
+    const value = this.positivePercentage();
     return (
-      <>
-        <h2>Please leave feedback</h2>
-        <ul>
-          {buttonsArray.map(button => (
-            <li key={button}>
-              <button type='button' onClick={()=>this.handleClick(button)}>{button}</button>
-            </li>
-          ))}
-        </ul>
-        <h2>Statistics</h2>
-        <ul>
-          {statsArray.map(item => (
-            <li key={item[0]}>
-              <p>{item[0]}: {item[1]}</p>
-              </li>
-            ))}
-        </ul>
-        <p>Total: {total}</p>
-        <p>Positive feedback:</p>
-      </>
+        <Container>
+          <Title>Please leave feedback</Title>
+          <Options options={buttonsArray} onFeedback={this.handleFeedback} />     
+        <Title>Statistics</Title>
+{total === 0 ? (
+            <Notification>No feedback given</Notification>
+          ) : (
+            <Statistics total={total} good={value} statsArray={statsArray} />
+          )}
+      </Container>
     )
 }
 };
